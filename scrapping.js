@@ -26,7 +26,6 @@ const urlTimeMania  = "https://loterias.caixa.gov.br/Paginas/Timemania.aspx"
 async function getSena() {
     const browser = await pup.launch()
     const page    = await browser.newPage()
-    await page.goto(urlSena)
 
     let scanSena = true
     let result
@@ -34,28 +33,25 @@ async function getSena() {
 
     while (scanSena){
         try {
-            result = null
-            console.log('result:', result)
+            await page.goto(urlSena)
+
             result = await page.evaluate(() => {
                 return Array.from(document.querySelectorAll('#ulDezenas')).map(x => x.textContent)[0].trim().match(/.{1,2}/g)
             })
-            console.log('result:', result)
             if (result){
                 scanSena = false
-                console.log(`Sena finished successfully after ${n} scan(s)`)
+                // console.log(`Sena finished successfully after ${n} scan(s)`)
+                console.log('MegaSena:', result)
+                await browser.close()
             } else{
-                console.log('nop..')
                 n++
-                // throw new Error('Throwing error for: sena')
             }
+
         } catch(err){
             console.log('Error found', err)
             console.log('trying again..')
         }
     }
-
-
-    await browser.close()
     return result
 }
 
@@ -165,21 +161,23 @@ async function getTimeMania() {
     return result
 }
 
+// getSena()
+    // .then(megaSena => {
+    //     console.log(typeof megaSena)
+    //     console.log(megaSena)
+    //
+    //     resSena.push(...megaSena)
+    //     allResults.push({MegaSena: resSena})
+    //
+    //     console.log(`Mega Sena: ${resSena}`)
+    //     console.log('All Results:', allResults)
+    //
+    //     fs.writeFile('/tmp/loterias.out', JSON.stringify({ allRes: allResults }), err => {
+    //         console.log(err)
+    //     })
+    // })
+
 getSena()
-    .then(megaSena => {
-        console.log(typeof megaSena)
-        console.log(megaSena)
-
-        resSena.push(...megaSena)
-        allResults.push({MegaSena: resSena})
-
-        console.log(`Mega Sena: ${resSena}`)
-        console.log('All Results:', allResults)
-
-        fs.writeFile('/tmp/loterias.out', JSON.stringify({ allRes: allResults }), err => {
-            console.log(err)
-        })
-    })
 
 /* getQuina()
     .then(quina => {
